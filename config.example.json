@@ -1,0 +1,67 @@
+{
+  "host": "127.0.0.1",
+  "port": 49376,
+  "dataDir": "~/.realtime-operator",
+  "workspaceRoot": "~",
+  "statePath": "~/.realtime-operator/state.json",
+  "logPath": "~/.realtime-operator/operator.log",
+  "transcriptPath": "~/.realtime-operator/transcript.jsonl",
+  "eventLogPath": "~/.realtime-operator/realtime-events.jsonl",
+  "accessTokenPath": "~/.realtime-operator/access-token",
+  "network": {
+    "publicHost": "",
+    "trustPrivateClients": false,
+    "trustTailnetClients": false,
+    "phoneAccessCodePath": "~/.realtime-operator/phone-code.secret.local"
+  },
+  "openai": {
+    "apiKeyFile": "~/.realtime-operator/openai-api-key.secret.local",
+    "apiKeyEnv": "OPENAI_API_KEY",
+    "safetyIdentifierSeed": "realtime-operator-local"
+  },
+  "realtime": {
+    "model": "gpt-realtime-2",
+    "voice": "marin",
+    "voiceStyle": "calm_operator",
+    "outputModalities": ["audio"],
+    "maxOutputTokens": "inf",
+    "reasoning": {
+      "effort": "xhigh"
+    },
+    "tracing": {
+      "enabled": true,
+      "workflowName": "realtime_operator"
+    },
+    "inputTranscription": {
+      "model": "gpt-4o-transcribe",
+      "prompt": "Expect natural spoken requests about local files, apps, commands, browser URLs, and system state."
+    },
+    "inputNoiseReduction": {
+      "type": "near_field"
+    },
+    "turnDetection": {
+      "type": "semantic_vad",
+      "eagerness": "low",
+      "create_response": false,
+      "interrupt_response": true
+    }
+  },
+  "system": {
+    "commandTimeoutMs": 60000,
+    "maxConcurrentCommands": 1,
+    "allowedRoots": ["~"],
+    "allowOpenUrl": true,
+    "allowNotifications": true,
+    "allowClipboard": true
+  },
+  "safety": {
+    "requireConfirmationForRiskyTasks": true,
+    "maxCommandChars": 12000,
+    "maxReplyChars": 12000
+  },
+  "logging": {
+    "fullTranscript": true,
+    "technicalEvents": true,
+    "includeToolPayloads": false
+  }
+}
