@@ -693,6 +693,48 @@ function simpleGlobMatches(path, glob) {
   return new RegExp(`^${escaped}$`).test(name) || new RegExp(`${escaped}$`).test(path);
 }
 
+function searchFilesFallback(root, query, args = {}) {
+  const maxResults = Math.min(Math.max(Number(args.max_results) || 80, 1), 300);
+  const fixed = args.fixed_strings !== false;
+  const matcher = fixed
+    ? (line) => line.includes(query)
+    : (line) => {
+        try {
+          return new RegExp(query).test(line);
+        } catch {
+          return line.includes(query);
+        }
+      };
+  const results = [];
+  const stack = [root];
+  const ignoredDirs = new Set([".git", "node_modules", "test-results", "playwright-report"]);
+  while (stack.length && results.length < maxResults) {
+    const current = stack.pop();
+    let stat;
+    try { stat = statSync(current); } catch { continue; }
+    if (isSensitiveLocalPath(current)) continue;
+    if (stat.isDirectory()) {
+      let entries = [];
+      try { entries = readdirSync(current, { withFileTypes: true }); } catch { continue; }
+      for (const entry of entries.reverse()) {
+        if (entry.isDirectory() && ignoredDirs.has(entry.name)) continue;
+        stack.push(join(current, entry.name));
+      }
+      continue;
+    }
+    if (!stat.isFile() || stat.size > 1024 * 1024 || !simpleGlobMatches(current, args.glob)) continue;
+    let text = "";
+    try { text = readFileSync(current, "utf8"); } catch { continue; }
+    const lines = text.split("\n");
+    for (let index = 0; index < lines.length && results.length < maxResults; index += 1) {
+      if (matcher(lines[index])) {
+        results.push({ path: current, line: index + 1, text: redact(lines[index]).slice(0, 1000) });
+      }
+    }
+  }
+  return results;
+}
+
 async function searchFilesTool(args = {}) {
   const root = validateRoot(args.path || args.directory || config.workspaceRoot);
   const query = String(args.query || args.pattern || "").trim();
@@ -703,6 +745,9 @@ async function searchFilesTool(args = {}) {
   if (args.glob) rgArgs.push("--glob", String(args.glob));
   rgArgs.push(query, root);
   const out = await spawnPromise("rg", rgArgs, { cwd: root, timeout: 20_000, maxBuffer: 2 * 1024 * 1024 });
+  const fallbackResults = !out.ok && /ENOENT|not found|spawn rg/i.test(`${out.message} ${out.stderr}`)
+    ? searchFilesFallback(root, query, args)
+    : [];
   const lines = String(out.stdout || "")
     .split("\n")
     .filter(Boolean)
@@ -712,7 +757,17 @@ async function searchFilesTool(args = {}) {
       return match ? { path: match[1], line: Number(match[2]), text: redact(match[3]).slice(0, 1000) } : { path: "", line: 0, text: redact(line) };
     })
     .filter((entry) => entry.path && !isSensitiveLocalPath(entry.path) && simpleGlobMatches(entry.path, args.glob));
-  return { status: out.ok || lines.length ? "ok" : "error", query, path: root, results: lines, stderr: out.stderr, message: out.message, truncated: lines.length >= maxResults };
+  const results = fallbackResults.length ? fallbackResults : lines;
+  return {
+    status: out.ok || results.length ? "ok" : "error",
+    query,
+    path: root,
+    results,
+    stderr: out.stderr,
+    message: out.message,
+    searchBackend: fallbackResults.length ? "node" : "rg",
+    truncated: results.length >= maxResults,
+  };
 }
 
 async function systemStatusTool() {
