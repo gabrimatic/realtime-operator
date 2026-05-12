@@ -111,7 +111,7 @@ try {
       tool: "run_command",
       args: {
         argv: ["python3", "-c", "import sys,json; print(json.dumps({'got': sys.stdin.read(), 'quote': '\"'}))"],
-        stdin: "weather [Berlin] 'quoted'",
+        stdin: "weather [Test City] 'quoted'",
         timeout_ms: 10000,
       },
     }),
@@ -212,7 +212,7 @@ try {
   if (toolNames.has("take_screenshot")) throw new Error("image/screenshot tools must not be exposed.");
   if (status.result.status !== "ok") throw new Error("get_system_status failed.");
   if (command.result.result.stdout !== "COMMAND_OK") throw new Error("run_command failed.");
-  if (!structured.result.result.stdout.includes("weather [Berlin]")) throw new Error("structured argv/stdin command failed.");
+  if (!structured.result.result.stdout.includes("weather [Test City]")) throw new Error("structured argv/stdin command failed.");
   if (risky.result.status !== "approval_required") throw new Error("confirmed=true without challenge must not run.");
   if (confirmed.result.result.stdout !== "CONFIRMED") throw new Error("confirmation flow failed.");
   if (!directory.result.entries.some((entry) => entry.name === "hello.txt")) throw new Error("list_directory failed.");
