@@ -13,7 +13,7 @@
     "test": "npm run check && npm run smoke && npm run ui:smoke && npm run secret:scan"
   },
   "devDependencies": {
-    "@playwright/test": "1.59.1"
+    "@playwright/test": "1.60.0"
   },
   "engines": {
     "node": ">=22"
