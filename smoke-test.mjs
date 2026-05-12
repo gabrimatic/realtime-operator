@@ -189,8 +189,8 @@ try {
   });
   const phoneAccess = await request("/api/phone-access");
   const localhostTrust = await request("/api/network-trust?remote=127.0.0.1");
-  const privateLanTrust = await request("/api/network-trust?remote=192.168.1.42");
-  const tailnetTrust = await request("/api/network-trust?remote=100.94.1.2");
+  const privateLanTrust = await request("/api/network-trust?remote=10.0.0.42");
+  const tailnetTrust = await request("/api/network-trust?remote=100.64.0.2");
   const mobilePreflight = await request("/api/mobile-preflight", {
     headers: { "x-realtime-operator-token": "stale-token-from-old-session" },
   });
