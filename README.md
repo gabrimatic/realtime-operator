@@ -1,5 +1,6 @@
 # Realtime Operator
 
+[![CI](https://github.com/gabrimatic/realtime-operator/actions/workflows/test.yml/badge.svg)](https://github.com/gabrimatic/realtime-operator/actions/workflows/test.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Runtime: Node 22+](https://img.shields.io/badge/node-22%2B-blue.svg)]()
 [![OpenAI Realtime](https://img.shields.io/badge/OpenAI-Realtime-green.svg)](https://platform.openai.com/docs/guides/realtime)
