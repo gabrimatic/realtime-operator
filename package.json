@@ -4,6 +4,10 @@
   "description": "A local system-control voice agent built with the OpenAI Realtime API.",
   "type": "module",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gabrimatic/realtime-operator.git"
+  },
   "scripts": {
     "start": "node server.mjs",
     "check": "node --check server.mjs && node --check smoke-test.mjs && node --check ui-smoke.spec.mjs && node --check ui-smoke-runner.mjs && node --check scripts/secret-scan.mjs",
